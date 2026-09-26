@@ -1,0 +1,15 @@
+name: Keep-Alive Render Service
+
+on:
+  schedule:
+    # Se ejecuta cada 14 minutos
+    - cron: '*/14 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send HTTP request to Render /healthz
+        run: |
+          curl -s -f https://mi-tiendita.onrender.com/healthz || exit 0
