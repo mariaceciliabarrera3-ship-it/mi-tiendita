@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: mi-tiendita
+    runtime: docker
+    # ATENCIÓN: "free" duerme el servicio tras ~15 min sin tráfico (arranque en frío de ~1 min) y
+    # tiene 512 MB de RAM. Para comercios reales usar "starter" o superior (ver docs/AUDITORIA_Y_PENDIENTES.md).
+    plan: free
+    # Elegir la región más cercana a la base de datos (Neon). Cada pedido hace varias consultas.
+    region: oregon
+    healthCheckPath: /healthz
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: ENABLE_DEMO_SEED
+        value: "false"
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      # Cuenta propietaria del SaaS: casilla PROPIA (recibe el enlace de recuperación de contraseña).
+      - key: SUPERADMIN_EMAIL
+        sync: false
+      - key: SUPERADMIN_PASSWORD
+        sync: false
+      # Render pone 1 proxy delante: así los límites de intentos y la auditoría ven la IP real.
+      - key: TRUSTED_PROXY_HOPS
+        value: "1"
+      - key: OCR_MAX_CONCURRENT
+        value: "1"
+      # Correo (obligatorio para confirmar cuentas y recuperar contraseñas).
+      - key: MAIL_MODE
+        value: smtp
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        sync: false
