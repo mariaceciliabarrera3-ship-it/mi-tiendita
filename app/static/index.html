@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta name="theme-color" content="#0F766E" />
+  <title>Mi Tiendita — Tu Negocio Claro y al Día</title>
+  <link rel="icon" href="/static/icon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <!-- CONTENEDOR DE NOTIFICACIONES -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- PANTALLA DE AUTENTICACIÓN Y REGISTRO DE COMERCIO -->
+  <section id="authScreen" class="auth-wrapper">
+    <div class="auth-card">
+      <div class="brand-header">
+        <img src="/static/icon.svg" alt="Logo Mi Tiendita" class="brand-logo" />
+        <div>
+          <h1 class="brand-title">Mi Tiendita</h1>
+          <p class="brand-subtitle">Ventas, stock, fiados y caja tan fácil como tu calculadora.</p>
+        </div>
+      </div>
+
+      <div class="auth-tabs">
+        <button id="tabLoginBtn" type="button" class="auth-tab active" onclick="App.switchAuthTab('login')">Ingresar</button>
+        <button id="tabRegisterBtn" type="button" class="auth-tab" onclick="App.switchAuthTab('register')">Crear mi Negocio</button>
+      </div>
+
+      <!-- Formulario Login -->
+      <form id="loginForm" onsubmit="App.handleLogin(event)">
+        <div class="form-group">
+          <label for="loginEmail">Correo electrónico</label>
+          <input id="loginEmail" type="email" class="input" placeholder="ejemplo@mitiendita.ar" required />
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Contraseña</label>
+          <input id="loginPassword" type="password" class="input" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">Entrar a Mi Tiendita</button>
+        <button type="button" class="btn btn-secondary" style="width:100%;margin-top:8px" onclick="App.forgotPassword()">Olvidé mi contraseña</button>
+        <button type="button" class="btn btn-secondary" style="width:100%;margin-top:8px" onclick="App.resendVerification()">Reenviar confirmación de correo</button>
+      </form>
+
+      <!-- Formulario Registro de Nuevo Comercio (Inicia 100% Vacío sin catálogo genérico) -->
+      <form id="registerForm" class="hidden" onsubmit="App.handleRegister(event)">
+        <div class="form-group">
+          <label for="regStoreName">Nombre de tu comercio</label>
+          <input id="regStoreName" type="text" class="input" placeholder="Ej: Despensa San Martín" required />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="regBusinessType">Rubro</label>
+            <select id="regBusinessType" class="input">
+              <option value="Almacén">Almacén / Despensa</option>
+              <option value="Kiosco">Kiosco / Maxikiosco</option>
+              <option value="Verdulería">Verdulería / Fiambrería</option>
+              <option value="Emprendimiento">Emprendimiento Familiar</option>
+              <option value="Ferretería">Ferretería / Bazar</option>
+              <option value="Otro">Otro comercio</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="regOwnerName">Tu nombre</label>
+            <input id="regOwnerName" type="text" class="input" placeholder="Ej: Marta Gómez" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="regEmail">Tu correo</label>
+            <input id="regEmail" type="email" class="input" placeholder="marta@correo.com" required />
+          </div>
+          <div class="form-group">
+            <label for="regPhone">WhatsApp / Teléfono (opcional)</label>
+            <input id="regPhone" type="text" class="input" placeholder="549351..." />
+          </div>
+        </div>
+        <div class="form-row"><div class="form-group"><label for="regCurrency">Moneda (código ISO, ej. ARS, USD, EUR)</label><input id="regCurrency" class="input" value="ARS" pattern="[A-Z]{3}" required></div><div class="form-group"><label for="regTimezone">Zona horaria (IANA)</label><input id="regTimezone" class="input" value="America/Argentina/Buenos_Aires" required></div></div>
+        <div class="form-group">
+          <label for="regPassword">Creá una contraseña (mínimo 8 caracteres)</label>
+          <input id="regPassword" type="password" class="input" minlength="8" required />
+        </div>
+        <p style="font-size:0.82rem;color:var(--text-muted);margin:6px 0 12px;">
+          Tu negocio comienza limpio, sin productos ajenos precargados, ni exigencias contables para arrancar.
+        </p>
+        <button type="submit" class="btn btn-emerald btn-lg" style="width:100%">Abrir mi Espacio de Trabajo Gratis</button>
+      </form>
+
+      <!-- Accesos rápidos de demostración (visibles únicamente si existen datos [DEMO] separados) -->
+      <div id="demoQuickAccess" class="demo-box hidden">
+        <div class="demo-box-title">🧪 Entornos [DEMO] separados para evaluación</div>
+        <div class="demo-btn-grid">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.quickDemoLogin('demo.almacen@mitiendita.ar','Demo1234!')">
+            🏪 Almacén Don Mateo [DEMO] (Dueño)
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.quickDemoLogin('demo.kiosco@mitiendita.ar','Demo1234!')">
+            🍬 Kiosco El Trébol [DEMO] (Aislamiento Tenant 2)
+          </button>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- APLICACIÓN PRINCIPAL -->
+  <div id="appShell" class="app-layout hidden">
+    <!-- Barra lateral escritorio -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="/static/icon.svg" alt="Mi Tiendita" />
+        <div>
+          <div id="sidebarStoreName" class="sidebar-store-name">Mi Tiendita</div>
+          <div id="sidebarRoleBadge" class="sidebar-role-badge">Titular</div>
+        </div>
+      </div>
+
+      <nav id="merchantNav" class="sidebar-nav">
+        <button type="button" class="nav-btn protagonist" data-view="pos" onclick="App.navigate('pos')">
+          <span>🧮</span> Nueva Venta (Calculadora)
+        </button>
+        <button type="button" class="nav-btn" data-view="home" onclick="App.navigate('home')">
+          <span>🏠</span> Inicio y Accesos
+        </button>
+        <button type="button" class="nav-btn" data-view="products" onclick="App.navigate('products')">
+          <span>📦</span> Productos y Stock
+        </button>
+        <button type="button" class="nav-btn" data-view="customers" onclick="App.navigate('customers')">
+          <span>📒</span> Clientes y Fiados
+        </button>
+        <button type="button" class="nav-btn" data-view="cash" onclick="App.navigate('cash')">
+          <span>💵</span> Caja, Ingresos y Gastos
+        </button>
+        <button type="button" class="nav-btn" data-view="suppliers" onclick="App.navigate('suppliers')">
+          <span>🚚</span> Compras y Proveedores
+        </button>
+        <button type="button" class="nav-btn" data-view="reports" onclick="App.navigate('reports')">
+          <span>📊</span> Ganancias y Reportes
+        </button>
+        <button type="button" class="nav-btn" data-view="sales_history" onclick="App.navigate('sales_history')">
+          <span>🧾</span> Historial de Ventas
+        </button>
+        <button type="button" class="nav-btn" data-view="fiscal" onclick="App.navigate('fiscal')">
+          <span>⚙️</span> Ajustes
+        </button>
+      </nav>
+
+      <nav id="superadminNav" class="sidebar-nav hidden">
+        <button type="button" class="nav-btn protagonist" data-view="saas_admin" onclick="App.navigate('saas_admin')">
+          <span>👑</span> Administración SaaS
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div id="sidebarUserEmail" style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px;word-break:break-all;"></div>
+        <button type="button" class="btn btn-secondary btn-sm" style="width:100%" onclick="App.logout()">Cerrar sesión</button>
+      </div>
+    </aside>
+
+    <!-- Área principal -->
+    <div class="main-area">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h2 id="topbarTitle" class="topbar-title">Calculadora de Ventas</h2>
+        </div>
+        <div class="topbar-right">
+          <span id="offlineBadge" class="badge badge-warning hidden" onclick="App.syncOfflineQueue()" style="cursor:pointer">
+            📡 Sincronizar cola offline (0)
+          </span>
+          <span id="cashTopBadge" class="badge badge-neutral">Caja</span>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="App.logout()" title="Salir">Salir</button>
+        </div>
+      </header>
+
+      <main id="viewContainer" class="view-container"></main>
+    </div>
+
+    <!-- Navegación Inferior Mobile-First -->
+    <nav id="mobileBottomNav" class="mobile-bottom-nav">
+      <button type="button" class="mob-nav-item" data-view="home" onclick="App.navigate('home')">
+        <span style="font-size:1.2rem">🏠</span><span>Inicio</span>
+      </button>
+      <button type="button" class="mob-nav-item" data-view="products" onclick="App.navigate('products')">
+        <span style="font-size:1.2rem">📦</span><span>Stock</span>
+      </button>
+      <button type="button" class="mob-nav-item center-sell" data-view="pos" onclick="App.navigate('pos')">
+        <span style="font-size:1.3rem">🧮</span><span>Vender</span>
+      </button>
+      <button type="button" class="mob-nav-item" data-view="customers" onclick="App.navigate('customers')">
+        <span style="font-size:1.2rem">📒</span><span>Fiados</span>
+      </button>
+      <button type="button" class="mob-nav-item" data-view="cash" onclick="App.navigate('cash')">
+        <span style="font-size:1.2rem">💵</span><span>Caja</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- MODAL REUTILIZABLE -->
+  <div id="modalBackdrop" class="modal-backdrop hidden" onclick="if(event.target===this) App.closeModal()">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalTitle">Acción</h3>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="App.closeModal()">✕</button>
+      </div>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
